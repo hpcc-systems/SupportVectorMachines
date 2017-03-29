@@ -8,7 +8,7 @@ Result := Types.CrossValidate_Result;
 Problem := Types.ECL_LibSVM_Problem;
 SVM_Parms := Types.ECL_LibSVM_Train_Param;
 ErrCode := Constants.LibSVM_BadParm;
-EXPORT Result svm_cross_validate(SVM_Parms prm,
+EXPORT Result SVMCrossValidate(SVM_Parms prm,
                                  Problem prb,
                                  UNSIGNED2 nr_fold,
                                  UNSIGNED4 err_code=ErrCode) := BEGINC++

@@ -10,7 +10,7 @@ Node  := Types.LibSVM_Node;
 Rqst  := Types.LibSVM_Output;
 ErrCode := Constants.LibSVM_BadParm;
 R8Entry := Types.R8Entry;
-EXPORT DATASET(R8Entry) svm_predict(Model ecl_model, DATASET(Node) ecl_nodes,
+EXPORT DATASET(R8Entry) SVMPredict(Model ecl_model, DATASET(Node) ecl_nodes,
                                     Rqst output_request ) := BEGINC++
   extern "C" {
     #include <libsvm/svm.h>

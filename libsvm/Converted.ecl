@@ -7,7 +7,7 @@ IMPORT SVM.LibSVM.Types;
 IMPORT SVM.Types AS SVM_Types;
 IMPORT STD;
 // aliases for shorter names
-ECL_LibSVM_Problem := Types.ECL_LibSVM_Problem;
+ECL_LibSVM_ProblemList := Types.ECL_LibSVM_ProblemList;
 R8Entry := Types.R8Entry;
 LibSVM_Node := Types.LibSVM_Node;
 SVM_Feature := SVM_Types.SVM_Feature;
@@ -42,6 +42,7 @@ EXPORT Converted := MODULE
     END;
     STRING delims := ' \t\r\n';
     SVM_Instance cvtInstance(svmread_format lr) := TRANSFORM
+      SELF.wi := 1;
       preped := STD.Str.substituteincluded(lr.line, delims, '|');
       elems := STD.Str.SplitWords(preped, '|');
       elems_ds := DATASET(elems, StringEntry);
@@ -59,7 +60,7 @@ EXPORT Converted := MODULE
   //
   // Make a LibSVM Problem file from an Instance file.  This
   //will be a single record file.
-  EXPORT DATASET(ECL_LibSVM_Problem)
+  EXPORT DATASET(ECL_LibSVM_ProblemList)
          Instance2Problem(DATASET(SVM_Instance) ds) := FUNCTION
     LibSVM_Node lastNode() := TRANSFORM
       SELF.indx := -1;
@@ -69,7 +70,8 @@ EXPORT Converted := MODULE
       SELF.indx := feature.nominal;
       SELF.value := feature.v;
     END;
-    ECL_LibSVM_Problem cvtInstance(SVM_Instance instance) := TRANSFORM
+    ECL_LibSVM_ProblemList cvtInstance(SVM_Instance instance) := TRANSFORM
+      SELF.wi := instance.wi;
       SELF.elements := COUNT(instance.x) + 1;  //include -1 row
       SELF.entries := 1;
       SELF.features := MAX(instance.x, nominal);
@@ -79,15 +81,17 @@ EXPORT Converted := MODULE
               & DATASET(1, lastNode());
     END;
     es := PROJECT(ds, cvtInstance(LEFT));
-    ECL_LibSVM_Problem r(ECL_LibSVM_Problem c, ECL_LibSVM_Problem i):=TRANSFORM
-      SELF.elements := c.elements + i.elements;
-      SELF.entries := c.entries + i.entries;
-      SELF.features:= MAX(c.features, i.features);
-      SELF.max_value:= MAX(c.max_value, i.max_value);
-      SELF.y := c.y & i.y;
-      SELF.x := c.x & i.x;
+    ECL_LibSVM_ProblemList r(ECL_LibSVM_ProblemList l, DATASET(ECL_LibSVM_ProblemList) a):=TRANSFORM
+      SELF.wi := l.wi;
+      SELF.elements := SUM(a, elements);
+      SELF.entries := SUM(a, entries);
+      SELF.features:= MAX(a, features);
+      SELF.max_value:= MAX(a, max_value);
+      SELF.y := a.y;
+      SELF.x := a.x;
     END;
-    prob := ROLLUP(es, TRUE, r(LEFT,RIGHT));
+    g_es := GROUP(SORT(es, wi), wi);
+    prob := ROLLUP(g_es, GROUP, r(LEFT, ROWS(LEFT)));
     RETURN prob;
   END;
 END;

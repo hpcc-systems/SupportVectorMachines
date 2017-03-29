@@ -210,5 +210,5 @@ DATA svm_train_d(SVM_Parms prm,
   free(all_x);
 ENDC++;
 
-EXPORT ECL_LibSVM_Model svm_train(SVM_Parms prm, Problem prb)
+EXPORT ECL_LibSVM_Model SVMTrain(SVM_Parms prm, Problem prb)
             := TRANSFER(svm_train_d(prm, prb), ECL_LibSVM_Model);

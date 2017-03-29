@@ -9,4 +9,4 @@ extern "C" {
   return libsvm_version;
 ENDC++;
 
-EXPORT LibSVM_Version := getVersion();
+EXPORT LibSVMVersion := getVersion();
