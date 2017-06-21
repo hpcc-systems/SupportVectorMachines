@@ -1,6 +1,6 @@
 ﻿IMPORT Std;
 EXPORT Bundle := MODULE(Std.BundleBase)
- EXPORT Name := 'SVM';
+ EXPORT Name := 'SupportVectorMachines';
  EXPORT Description := 'Support Vector Machines';
  EXPORT Authors := ['HPCCSystems'];
  EXPORT License := 'http://www.apache.org/licenses/LICENSE-2.0';

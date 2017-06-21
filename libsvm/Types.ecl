@@ -1,4 +1,4 @@
-// Types for the LibSVM and LibLINEAR implementations
+﻿// Types for the LibSVM and LibLINEAR implementations
 EXPORT Types := MODULE
   //Interfqce for C++ wrappers, DO NOT ALTER BELOW WITHOUT CHANGING WRAPPERS
   EXPORT LibSVM_Output:= ENUM(UNSIGNED2, LABEL_ONLY=0, VALUES, PROBS);
@@ -13,6 +13,15 @@ EXPORT Types := MODULE
   END;
   EXPORT I4Entry := RECORD
     INTEGER4 v;
+  END;
+  EXPORT ECL_LibSVM_ProblemList := RECORD
+    UNSIGNED2 wi;
+    UNSIGNED4 elements;
+    INTEGER4 entries;
+    UNSIGNED4 features;
+    REAL8 max_value;
+    DATASET(R8Entry, COUNT(SELF.entries)) y;
+    DATASET(LibSVM_Node, COUNT(SELF.elements)) x;
   END;
   EXPORT ECL_LibSVM_Problem := RECORD
     UNSIGNED4 elements;
