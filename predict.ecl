@@ -1,5 +1,5 @@
 ﻿// Produce a data set of predictions for each model
-IMPORT SupportVectorMachines as SVM;
+IMPORT $ as SVM;
 IMPORT SVM.LibSVM;
 IMPORT ML_Core.Types as ML_Types;
 

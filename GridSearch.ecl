@@ -1,5 +1,5 @@
 ﻿// Generate a set of models in a grid search to establish C and gamma
-IMPORT SupportVectorMachines as SVM;
+IMPORT $ as SVM;
 IMPORT SVM.Types;
 IMPORT std.system.Thorlib;
 IMPORT ML_Core.Types as ML_Types;

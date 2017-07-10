@@ -9,7 +9,7 @@
   * to stage the data.
   */
 
-IMPORT SupportVectorMachines as SVM;
+IMPORT $.^ as SVM;
 IMPORT SVM.Performance as Perf;
 
 SEQUENTIAL(

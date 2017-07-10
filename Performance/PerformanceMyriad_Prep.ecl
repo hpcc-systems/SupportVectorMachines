@@ -17,7 +17,7 @@ IMPORT PBblas.test as Tests;
 IMPORT Tests.MakeTestMatrix as tm;
 IMPORT ML_Core as ML;
 IMPORT ML.Types as Core_Types;
-IMPORT SupportVectorMachines as SVM;
+IMPORT $.^ as SVM;
 
 Layout_Cell := Types.Layout_Cell;
 NumericField := Core_Types.NumericField;

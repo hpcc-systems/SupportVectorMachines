@@ -1,5 +1,5 @@
 ﻿IMPORT ML_Core.Types AS Core_Types;
-IMPORT SupportVectorMachines as SVM;
+IMPORT $ as SVM;
 
 /**
  * Generate human-readable summary of SVM models.

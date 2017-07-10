@@ -1,4 +1,4 @@
-﻿IMPORT SupportVectorMachines as SVM;
+﻿IMPORT $ as SVM;
 IMPORT SVM.Types;
 IMPORT SVM.LibSVM.Types AS LibSVM_Types;
 IMPORT SVM.LibSVM;

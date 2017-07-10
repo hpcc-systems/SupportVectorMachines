@@ -9,9 +9,9 @@
  */
 
 // Imports
-IMPORT ML_Core as Core;
-IMPORT Core.Types as Types;
-IMPORT SupportVectorMachines as SVM;
+IMPORT ML_Core;
+IMPORT ML_Core.Types as Types;
+IMPORT $.^ as SVM;
 IMPORT SVM.LibSVM;
 IMPORT SVM.datasets.HeartScale;
 
@@ -20,7 +20,7 @@ heartScaleDS := HeartScale.Content;
 OUTPUT(heartScaleDS, NAMED('Dataset'));
 
 // Convert dataset to the standard NumericField format used by HPCC ML algorithm
-Core.ToField(heartScaleDS,heartScaleDS_NF);
+ML_Core.ToField(heartScaleDS,heartScaleDS_NF);
 OUTPUT(heartScaleDS_NF, NAMED('Dataset_NumberField'));
 
 // Create a testing dataset by concatenating three identical datasets.
@@ -36,7 +36,7 @@ heartScaleDS_NFx3 := heartScaleDS_NF +
 // Split out features and classes ('number' identifies column, and number = 1
 // corresponds to the labels).
 features := heartScaleDS_NFx3(number <> 1);
-classes := Core.Discretize.ByRounding(heartScaleDS_NFx3(number = 1));
+classes := ML_Core.Discretize.ByRounding(heartScaleDS_NFx3(number = 1));
 OUTPUT(features, NAMED('Features'));
 OUTPUT(classes, NAMED('Classes'));
 

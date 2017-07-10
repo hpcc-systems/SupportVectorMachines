@@ -5,21 +5,21 @@
  */
 
 // Imports
-IMPORT SupportVectorMachines as SVM;
+IMPORT $.^ as SVM;
 IMPORT SVM.Validation.R_Validation as R;
 IMPORT SVM.LibSVM;
 IMPORT SVM.datasets.HeartScale;
-IMPORT ML_Core as Core;
-IMPORT Core.Types as Types;
+IMPORT ML_Core;
+IMPORT ML_Core.Types as Types;
 
 // Pull in the HeartScale dataset
 heartScaleDS := HeartScale.Content;
-Core.ToField(heartScaleDS,heartScaleDS_NF);
+ML_Core.ToField(heartScaleDS,heartScaleDS_NF);
 
 X := heartScaleDS_NF(number <> 1);
 features := X;
 Y := heartScaleDS_NF(number = 1);
-classes := Core.Discretize.ByRounding(Y);
+classes := ML_Core.Discretize.ByRounding(Y);
 
 // Define model parameters
 kernelType := LibSVM.Types.LibSVM_Kernel.RBF;

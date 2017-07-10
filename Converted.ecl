@@ -40,7 +40,7 @@ EXPORT Converted := MODULE
       SELF.y := d.value;
       SELF := i;
     END;
-    rslt := JOIN(indy, dep, LEFT.rid=RIGHT.id AND LEFT.wi=RIGHT.wi, getD(LEFT,RIGHT),
+    rslt := JOIN(indy, dep, LEFT.wi=RIGHT.wi AND LEFT.rid=RIGHT.id, getD(LEFT,RIGHT),
                  LEFT OUTER, LIMIT(1,FAIL));
     RETURN rslt;
   END;  // to instance data

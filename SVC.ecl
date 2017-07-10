@@ -1,4 +1,4 @@
-﻿IMPORT SupportVectorMachines as SV;
+﻿IMPORT $ as SV;
 IMPORT SV.Types as Types;
 IMPORT SV.LibSVM.Types AS LibSVM_Types;
 IMPORT PBblas;
