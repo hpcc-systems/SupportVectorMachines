@@ -20,14 +20,14 @@ EXPORT DATASET(R8Entry) SVMPredict(Model ecl_model, DATASET(Node) ecl_nodes,
   #endif
     #ifndef ECL_SVM_NODE
     #define ECL_SVM_NODE
-    typedef struct __attribute__ ((__packed__))  Packed_SVM_Node {
+    struct __attribute__ ((__packed__))  Packed_SVM_Node {
       int indx;
       double value;
     };
   #endif
   #ifndef ECL_SVM_MODEL
   #define ECL_SVM_MODEL
-    typedef struct __attribute__ ((__packed__)) Packed_SVM_Model {
+    struct __attribute__ ((__packed__)) Packed_SVM_Model {
       unsigned short svm_type;
       unsigned short kernel_type;
       int degree;
