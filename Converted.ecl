@@ -1,11 +1,13 @@
-﻿// Converted to and from SVM and generic formats for ML/Classify
+// Converted to and from SVM and generic formats for ML/Classify
 IMPORT ML_Core as ML;
 IMPORT $ as SVM;
 IMPORT ML_Core.Types AS ML_Types;
 
 /**
- * Module for various data conversions, including from a NumericField to an
- * SVM_Instance, and to/from a Layout_Model/NumericField.
+ * Module for various data conversions between standard ML Bundle formats
+ * and those used by libSVM.
+ *
+ * @internal
  */
 EXPORT Converted := MODULE
   //Instance data
@@ -15,10 +17,11 @@ EXPORT Converted := MODULE
   /**
    * Convert dataset in NumericField format (with separate NumericFields for
    * dependent and independent variables) to an SVM_Instance format.
+   *
    * @param Ind NumericField dataset of independent variables.
    * @param Dep NumericField dataset of dependent variable(s) (default: empty dataset).
-   * @return Dataset converted to SVM_Instance format (see SupportVectorMachines.Types
-   * for type definition).
+   * @return Dataset converted to SVM_Instance format.
+   * @see SupportVectorMachines.Types.SVM_Instance
    */
   EXPORT ToInstance(DATASET(ML_Types.NumericField) Ind,
                     DATASET(ML_Types.NumericField) Dep=dummy) := FUNCTION
@@ -183,10 +186,13 @@ EXPORT Converted := MODULE
   /**
    * Convert from SVM Model type to standardized Layout_Model format. The
    * Layout_Model format is harder to interpret, but more generalized.
+   *
    * @param id_base Base number from which to start model IDs (default: 1000).
-   * @param mdl Object of SVM Model type (see SupportVectorMachines.Types).
+   * @param mdl Object of SVM Model type (see Types.Model).
    * @return Convert SVM model in Layout_Model format (see ML_Core.Types for
    * format definition).
+   * @see Types.Model
+   * @see ML_Core.Types.Layout_Model
    */
   EXPORT FromModel(UNSIGNED id_base = 1000, DATASET(SVM.Types.Model) mdl) := FUNCTION
     {UNSIGNED2 wi, INTEGER4 id, DATASET(ML_Types.Layout_Model) mdls} convertModel(SVM.Types.Model mdl) := TRANSFORM
@@ -262,11 +268,14 @@ EXPORT Converted := MODULE
   END;
 
   /**
-   * Convert from standardized Layout_Model format (see ML_Core.Types) to
-   * SVM Model format (see SupportVectorMachines.Types). The SVM model format
+   * Convert from standardized ML Layout_Model format to
+   * SVM Model format used by libSVM. The SVM model format
    * is less general, but easier to interpret.
+   *
    * @param mdl Trained SVM in Layout_Model format.
    * @return Converted SVM model in SVM Model format.
+   * @see ML_Core.Types.Layout_Model
+   * @see Types.Model
    */
   EXPORT ToModel(DATASET(ML_Types.Layout_Model) mdl) := FUNCTION
     mdl_grp := GROUP(SORTED(mdl, wi, id, number, ASSERT), wi, id);

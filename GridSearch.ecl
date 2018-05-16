@@ -14,18 +14,27 @@ T_Parm := Types.Training_Parameters;
 Instance := Types.SVM_Instance;
 
 /**
- * Perform grid search over parameters gamma and C. The grid resolution is increased
- * automatically to utilize any otherwise idle nodes.
- * For a single given set of model parameters, models can be tuned to a number of datasets
- * by concatenating multiple datasets into single 'observations' and 'actuals'
- * datasets, with separate datasets being identified by a work ID column, 'wi'.
- * @param plan A structure defining preferences for the grid resolution and number of CV
- * folds used in evaluation of candidate models.
- * @param base The fixed model parameters (those other than gamma and C).
- * @param observations The observed explanatory values.
- * @param actuals The observed dependent varible(s) used to build the model(s).
- * @return Dataset with sets of model parameters and corresponding cross-validated scores.
- */
+  * Perform grid search over parameters gamma and C. The grid resolution is increased
+  * automatically to utilize any otherwise idle nodes.
+  * For a single given set of model parameters, models can be tuned to a number of datasets
+  * by concatenating multiple datasets into single 'observations' and 'actuals'
+  * datasets, with separate datasets being identified by a work ID column, 'wi'.
+  *
+  * @internal
+  * @param plan A structure defining preferences for the grid resolution and number of CV
+  * folds used in evaluation of candidate models.  In SVM_Grid_Plan format.
+  * @param base The fixed model parameters (those other than gamma and C) in Training_Base
+  *             format.
+  * @param observations The observed explanatory values in NumericField format.
+  * @param actuals The observed dependent varible(s) used to build the model(s) in NumericField
+  *                format.
+  * @return Dataset with sets of model parameters and corresponding cross-validated scores in
+  *         GridSearch_Result format.
+  * @see Types.SVM_Grid_Plan
+  * @see Types.Training_Base
+  * @see ML_Core.Types.NumericField
+  * @see Types.GridSearch_Result
+  */
 EXPORT GridSearch(
   Grid_Plan plan  = Types.SVM_Grid_Plan_Default,
   T_Base base     = Types.Training_Base_Default,

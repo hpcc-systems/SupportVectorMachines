@@ -16,6 +16,8 @@ SVM_Parms := LibSVM_Types.ECL_LibSVM_Train_Param;
 /**
  * Perform n-fold cross-validation to assess the performance of the
  * given model parameters.
+ *
+ * @internal
  * @param p The parameters which define the model(s) to be trained.
  * @param observations The observed explanatory values.
  * @param actuals The dependent variable(s).

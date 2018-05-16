@@ -5,12 +5,15 @@ DiscreteField     := Core_Types.DiscreteField;
 Confusion_Detail  := Core_Types.Confusion_Detail;
 
 /**
- * Detail confusion records to compare actual versus predicted response
- * variable values.
- * @param dependents the original response values
- * @param predicts the predicted responses
- * @return confusion counts by predicted and actual response values.
- */
+  * Generate the confusion matrix, to compare actual versus predicted response
+  * variable values.
+  *
+  * @internal
+  * @param dependents the original response values.
+  * @param predicts the predicted responses.
+  * @return confusion matrix in Confusion_Detail format.
+  * @see ML_Core.Types.Confusion_Detail
+  */
 EXPORT DATASET(Confusion_Detail)
        Confusion(DATASET(DiscreteField) dependents,
                  DATASET(DiscreteField) predicts) := FUNCTION
