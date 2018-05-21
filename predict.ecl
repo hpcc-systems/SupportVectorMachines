@@ -17,10 +17,12 @@ NumericField := ML_Types.NumericField;
 FeatureStats := SVM.Types.FeatureStats;
 
 /**
- * Module for generating predictions on data from SVM models.
- * @param models Trained SVM models.
- * @param observations Independent variables to apply model to and generate predictions.
- */
+  * Module for generating predictions on data from SVM models.
+  *
+  * @internal
+  * @param models Trained SVM models.
+  * @param observations Independent variables to apply model to and generate predictions.
+  */
 EXPORT Predict(DATASET(Model) models, DATASET(ML_Types.NumericField) observations) := MODULE
 
   SHARED LibSVM_Node cvtNode(SVM.Types.SVM_Feature f) := TRANSFORM

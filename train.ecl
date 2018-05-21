@@ -18,6 +18,7 @@ SVM_Feature := Types.SVM_Feature;
 
 /**
  * Train SVM classification and regression models.
+ * @internal
  * @param p The parameters which define the model(s) to be trained.
  * @param observations The observed explanatory values.
  * @param actuals The dependent variable(s).

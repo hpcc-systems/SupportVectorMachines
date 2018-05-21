@@ -11,6 +11,8 @@ Layout_Model := ML_Types.Layout_Model;
 
 /**
  * Scaling and column statistics for datasets in problem format.
+ *
+ * @internal
  * @param prob Dataset in problem format.
  * @param Scale Optional boolean value indicating whether or not data should be centered and scaled (default: true).
  */

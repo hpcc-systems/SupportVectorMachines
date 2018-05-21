@@ -2,11 +2,13 @@
 IMPORT $ as SVM;
 
 /**
- * Generate human-readable summary of SVM models.
- * @param model Trained SVM models in Layout_Model format.
- * @return A single-column dataset which contains human-readable information
- * about the SVM models.
- */
+  * Generate human-readable summary of SVM models.
+  *
+  * @internal
+  * @param model Trained SVM models in Layout_Model format.
+  * @return A single-column dataset which contains human-readable information
+  * about the SVM models.
+  */
 EXPORT DATASET({UNSIGNED4 r, STRING60 txt}) ModelSummary(
   DATASET(Core_Types.Layout_Model) model
 ) := FUNCTION

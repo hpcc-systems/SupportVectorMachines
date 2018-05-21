@@ -11,25 +11,38 @@ DiscreteField := ML_Types.DiscreteField;
 Layout_Model := ML_Types.Layout_Model;
 
 /**
- * Support vector machine classification.
- * @param svmType The SVC type, which may be one of 0 (C_SVC, default),
- * 1 (NU_SVC), or 2 (ONE_CLASS).
- * @param kernelType The kernel used in training and predicting, which may be one of
- * 0 (LINEAR), 1 (POLY), 2 (RBF, default), 3 (SIGMOID), or 4 (PRECOMPUTED).
- * @param gamma Parameter needed for all kernels except LINEAR (default: 0.05).
- * @param C Cost of constraint violation (default: 1).
- * @param degree Parameter needed for kernel of type POLY (default: 3).
- * @param coef0 Parameter needed for kernels of type POLY and SIGMOID (default: 0).
- * @param eps Tolerance of termination criterion (default: 0.001).
- * @param nu Parameter needed for NU_SVC and ONE_CLASS (default: 0.5).
- * @param p Epsilon in the insensitive-loss function (default: 0.1).
- * @param shrinking Flag indicating the use of shrinking-heuristics (default: true).
- * @param prob_est Whether to train for probability estimates (default true).
- * @param scale Whether to standardize the data (subtract mean, divide by sd) before fitting.
- * @param nr_weight The number of elements in the 'lbl' parameter (default: 0).
- * @param lbl Labels to indicate classes, used with the 'weight' parameter (default: []).
- * @param weight Class weights, assigned to classes using the 'lbl' parameter (default: []).
- */
+  * Support vector machine classification.
+  *
+  * <p>Utilizes the open-source libSVM under the hood.
+  * <p>This module is appropriate for small to medium sized Machine Learning
+  * problems or multitudes of small-to-medium problems using the Myriad interface.
+  * <p>This is due to both scaling limitations endemic to SVM, as well as the fact
+  * that libSVM runs independently on each node, and cannot, therefore scale to very
+  * large single problems.
+  * <p>Other techniques should be employed for Machine Learning with more than 10,000
+  * data points.
+  * <p>This module also provides a mechanism for doing a grid search for regularization
+  * parameters using the full resources of the HPCC cluster rather than searching
+  * sequentially (see GridSearch.ecl).
+  *
+  * @param svmType The SVC type, which may be one of 0 (C_SVC, default),
+  *                 1 (NU_SVC), or 2 (ONE_CLASS).
+  * @param kernelType The kernel used in training and predicting, which may be one of
+  *           0 (LINEAR), 1 (POLY), 2 (RBF, default), 3 (SIGMOID), or 4 (PRECOMPUTED).
+  * @param gamma Parameter needed for all kernels except LINEAR (default: 0.05).
+  * @param C Cost of constraint violation (default: 1).
+  * @param degree Parameter needed for kernel of type POLY (default: 3).
+  * @param coef0 Parameter needed for kernels of type POLY and SIGMOID (default: 0).
+  * @param eps Tolerance of termination criterion (default: 0.001).
+  * @param nu Parameter needed for NU_SVC and ONE_CLASS (default: 0.5).
+  * @param p Epsilon in the insensitive-loss function (default: 0.1).
+  * @param shrinking Flag indicating the use of shrinking-heuristics (default: true).
+  * @param prob_est Whether to train for probability estimates (default true).
+  * @param scale Whether to standardize the data (subtract mean, divide by sd) before fitting.
+  * @param nr_weight The number of elements in the 'lbl' parameter (default: 0).
+  * @param lbl Labels to indicate classes, used with the 'weight' parameter (default: []).
+  * @param weight Class weights, assigned to classes using the 'lbl' parameter (default: []).
+  */
 EXPORT SVC(
   Types.SVM_Type svmType        = LibSVM_Types.LibSVM_Type.C_SVC,
   Types.Kernel_Type kernelType  = LibSVM_Types.LibSVM_Kernel.RBF,
@@ -78,18 +91,24 @@ MODULE(Interfaces.IClassify)
   SHARED callMakeParam(INTEGER8 mid, REAL8 C, REAL8 gamma) := ROW(makeParam(mid, C, gamma));
 
   /**
-   * Calculate a model to fit the observation data to the observed classes.
-   * For a single given set of model parameters, models can be fit to a number of datasets
-   * by concatenating multiple datasets into single 'observations' and 'classifications'
-   * datasets, with separate datasets being identified by a work ID column, 'wi'.
-   * @param observations The observed explanatory values.
-   * @param classifications The observed classification used to build the model.
-   * @return The encoded models.
-   */
+    * Calculate a model to fit the observation data to the observed classes.
+    * For a single given set of model parameters, models can be fit to a number of datasets
+    * by concatenating multiple datasets into single 'observations' and 'classifications'
+    * datasets, with separate datasets being identified by a work-item number ('wi'), in the
+    * NumericField and DiscreteField datasets.
+    *
+    * @param observations The observed explanatory values in NumericField format.
+    * @param classifications The observed classification used to build the model
+    *                        in DiscreteField format.
+    * @return The encoded models in Layout_Model format.
+    * @see ML_Core.Types.NumericField
+    * @see ML_Core.Types.DiscreteField
+    * @see ML_Core.Types.Layout_Model
+    */
   EXPORT DATASET(Layout_Model) GetModel(
     DATASET(NumericField) observations,
     DATASET(DiscreteField) classifications) :=
-  FUNCTION
+                                          FUNCTION
     actuals := PROJECT(classifications, NumericField);
 
     params := DATASET(callMakeParam(-1, C, gamma));
@@ -100,11 +119,14 @@ MODULE(Interfaces.IClassify)
   END;
 
   /**
-   * Classify the observations using models trained by the GetModel function.
-   * @param model The models, which should be produced by a corresponding GetModel function.
-   * @param new_observations Observations to be classified.
-   * @return Classifications with a probability value.
-   */
+    * Classify the values for new observations using models trained by the GetModel function.
+    *
+    * @param model The models, which should be produced by a corresponding GetModel function.
+    * @param new_observations Observations to be classified in NumericField format.
+    * @return Classifications with a probability value in Classify_Results format.
+    * @see ML_Core.Types.NumericField
+    * @see ML_Core.Types.Classify_Results
+    */
   EXPORT DATASET(ML_Types.Classify_Result) Classify(
     DATASET(Layout_Model) model,
     DATASET(NumericField) new_observations) :=
@@ -127,12 +149,18 @@ MODULE(Interfaces.IClassify)
   END;
 
   /**
-   * Report the confusion matrix for the classifier and training data.
-   * @param model The models, which should be produced by a corresponding GetModel function.
-   * @param observations The explanatory values.
-   * @param classifications The classifications associated with the observations.
-   * @return The confusion matrix showing correct and incorrect results.
-   */
+    * Report the confusion matrix for the classifier and training data.
+    *
+    * @param model The models, which should be produced by a corresponding GetModel function.
+    * @param observations The explanatory values in NumericField format.
+    * @param classifications The classifications associated with the observations in
+    *                        DiscreteField format.
+    * @return The confusion matrix showing correct and incorrect results in Confusion_Detail
+    *         format.
+    * @see ML_Core.Types.NumericField
+    * @see ML_Core.Tyeps.DiscreteField
+    * @see ML_Core.Types.Confusion_Detail
+    */
   EXPORT DATASET(ML_Types.Confusion_Detail) Report(
     DATASET(Layout_Model) model,
     DATASET(NumericField) observations,
@@ -144,22 +172,36 @@ MODULE(Interfaces.IClassify)
     );
 
   /**
-   * Perform grid search over parameters gamma and C. The grid resolution is increased
-   * automatically to utilize any otherwise idle nodes.
-   * For a single given set of model parameters, models can be tuned to a number of datasets
-   * by concatenating multiple datasets into single 'observations' and 'classifications'
-   * datasets, with separate datasets being identified by a work ID column, 'wi'.
-   * @param folds The number of cross-validation folds for evaluating each candidate model.
-   * @param start_log2C The lower bound for log2(C): C >= 2^(start_log2C).
-   * @param stop_log2C The upper bound for log2(C): C <= 2^(start_log2C).
-   * @param maxIncr_log2C Taximum allowable exponential increment for C.
-   * @param start_log2gamma The lower bound for log2(gamma): gamma >= 2^(start_log2gamma).
-   * @param stop_log2gamma The upper bound for log2(gamma): gamma <= 2^(start_log2gamma).
-   * @param maxIncr_log2gamma Taximum allowable exponential increment for gamma.
-   * @param observations The observed explanatory values.
-   * @param classifications The observed classification used to build the model.
-   * @return Dataset with sets of model parameters and corresponding cross-validated scores.
-   */
+    * Perform a regularization tuning in order to align the granularity of the algorithm
+    * with the complexity of the data.  This is to avoid under or over fitting of the data.
+    * <p>Finds a reasonable setting for the regularization parameters gamma and C by
+    * performing a grid search over them and testing each using cross-validation.  The
+    * parameters that provide the lowest out-of-sample error (i.e. when tested on data
+    * not in the training set) are the ones chosen.
+    * <p>Returns a set of training parameter combinations and their results that can then
+    * be passed to GetTunedModel below
+    * to acquire a model that has been properly regularized.
+    * <p>The grid resolution is increased
+    * automatically to utilize any otherwise idle nodes.
+    * <p>For a single given set of model parameters, models can be tuned to a number of datasets
+    * by concatenating multiple datasets into single 'observations' and 'classifications'
+    * datasets, with separate datasets being identified by a work ID column, 'wi'.
+    *
+    * @param folds The number of cross-validation folds for evaluating each candidate model.
+    * @param start_log2C The lower bound for log2(C): C >= 2^(start_log2C).
+    * @param stop_log2C The upper bound for log2(C): C <= 2^(start_log2C).
+    * @param maxIncr_log2C Taximum allowable exponential increment for C.
+    * @param start_log2gamma The lower bound for log2(gamma): gamma >= 2^(start_log2gamma).
+    * @param stop_log2gamma The upper bound for log2(gamma): gamma <= 2^(start_log2gamma).
+    * @param maxIncr_log2gamma Taximum allowable exponential increment for gamma.
+    * @param observations The observed explanatory values in NumericField format.
+    * @param classifications The observed classification used to build the model in
+    *                         DiscreteField format.
+    * @return Dataset with sets of model parameters and corresponding cross-validated scores
+    *         in GridSearch_Result format.
+    * @see GetTunedModel
+    * @see Types.GridSearch_Result
+    */
   EXPORT DATASET(Types.GridSearch_Result) Tune(
     INTEGER4 folds          = 10,
     REAL8 start_log2C       = -5,
@@ -186,12 +228,20 @@ MODULE(Interfaces.IClassify)
   END;
 
   /**
+   * Choose the best set of regularization parameters and use it to train the models.
    * Using the output of Tune(), find the best set of modeling parameters for each work id,
-   * and train the corresponding models.
+   * and train the corresponding models.  The the most regularized (i.e. coarsest)
+   * set of parameters that achieved near-maximum performance is used to create the models.
+   *
    * @param tuneResult The results of a grid search over C and gamma, produced by Tune().
-   * @param observations The observed explanatory values.
-   * @param classifications The observed classification used to build the model.
-   * @return The encoded models.
+   * @param observations The observed explanatory values in NumericField format.
+   * @param classifications The observed classification used to build the model in
+   *                        DiscreteField format.
+   * @return The encoded models in Layout_Model format.
+   * @see Tune
+   * @see ML_Core.Types.NumericField
+   * @see ML_Core.Types.DiscreteField
+   * @see ML_Core.Types.Layout_Model
    */
   EXPORT DATASET(Layout_Model) GetTunedModel(
     DATASET(Types.GridSearch_Result) tuneResult,
@@ -222,16 +272,20 @@ MODULE(Interfaces.IClassify)
 
 
   /**
-   * Perform n-fold cross-validation of a given model for each work ID.
-   * For a single given set of model parameters, models can be cross-validated against
-   * a number of datasets by concatenating multiple datasets into single 'observations'
-   * and 'classifications' datasets, with separate datasets being identified by a work
-   * ID column, 'wi'.
-   * @param folds The number of cross-validation folds.
-   * @param observations The observed explanatory values.
-   * @param classifications The observed classification used to build.
-   * @return Dataset of cross-validated scores.
-   */
+    * Perform n-fold cross-validation of a given model for each work-item.
+    * <p>For a single given set of model parameters, models can be cross-validated against
+    * a number of datasets by concatenating multiple datasets into single 'observations'
+    * and 'classifications' datasets, with separate datasets being identified by a work
+    * ID column, 'wi'.
+    *
+    * @param folds The number of cross-validation folds.
+    * @param observations The observed explanatory values in NumericField format.
+    * @param classifications The observed classification used to build in DiscreteField format.
+    * @return Dataset of cross-validated scores in CrossValidate_Result format.
+    * @see ML_Core.NumericField
+    * @see ML_Core.DiscreteField
+    * @see Types.CrossValidate_Result
+    */
   EXPORT DATASET(Types.CrossValidate_Result) CrossValidate(
     INTEGER4 folds = 10,
     DATASET(NumericField) observations,
@@ -246,13 +300,14 @@ MODULE(Interfaces.IClassify)
   END;
 
   /**
-   * Generate human-readable model summary of trained SVM model(s).
-   * Multiple models can be simultaneously summarized by concatenating a number of models
-   * into a single 'model' object, with separate models being identified by a work ID
-   * column, 'wi'.
-   * @param model The models, which should be produced by a corresponding GetModel function.
-   * @return Single-column dataset with textual description of models.
-   */
+    * Generate human-readable model summary of trained SVM model(s).
+    * <p>Multiple models can be simultaneously summarized by concatenating a number of models
+    * into a single 'model' object, with separate models being identified by a work ID
+    * column, 'wi'.
+    *
+    * @param model The models, which should be produced by a corresponding GetModel function.
+    * @return Single-column dataset with textual description of models.
+    */
   EXPORT DATASET({UNSIGNED4 r, STRING60 Txt}) ModelSummary(
     DATASET(Layout_Model) model) := SV.ModelSummary(model);
 
